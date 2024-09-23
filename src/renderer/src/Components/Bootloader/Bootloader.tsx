@@ -8,8 +8,9 @@ export const FIELDS = [
   { name: 'filePath', label: 'File path', defaultValue: '' },
   { name: 'fileSize', label: 'File size', defaultValue: '' },
   { name: 'rowCount', label: 'Row count', defaultValue: '' },
-  { name: 'projectName', label: 'Project name', defaultValue: '' },
+  // { name: 'projectName', label: 'Project name', defaultValue: '' },
   { name: 'gateId', label: 'Gate ID', defaultValue: '', editable: true },
+  { name: 'version', label: 'Version', defaultValue: '', editable: true },
   { name: 'repeatCount', label: 'Repeat number', defaultValue: 3, editable: true },
   { name: 'sendInterval', label: 'Send interval', defaultValue: 200, editable: true }
   // {name: 'repeatInterval', label: 'Repeat interval(ms)', defaultValue: 200 },

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import Button, { ButtonOwnProps } from '@mui/material/Button'
-import CloudUploadIcon from '@mui/icons-material/CloudUpload'
+import FileUploadIcon from '@mui/icons-material/FileUpload'
+// import CloudUploadIcon from '@mui/icons-material/CloudUpload'
 import Box from '@mui/material/Box'
 import { styled } from '@mui/material/styles'
 
@@ -39,8 +40,8 @@ const Commands = ({ description }) => {
     window.bootloader.abortProgram()
   }, [])
 
-  const { gateId, repeatCount, sendInterval, projectName } = description
-  const params = { gateId, repeatCount, sendInterval, projectName }
+  const { gateId, repeatCount, sendInterval, projectName, version } = description
+  const params = { gateId, repeatCount, sendInterval, projectName, version }
 
   const beginProgram = async () => {
     await window.bootloader.beginProgram(params)
@@ -87,7 +88,7 @@ const Commands = ({ description }) => {
   return (
     <Box sx={{ padding: '10px' }}>
       <Button
-        {...{ ...commonProps, component: 'label', role: undefined, startIcon: <CloudUploadIcon /> }}
+        {...{ ...commonProps, component: 'label', role: undefined, startIcon: <FileUploadIcon /> }}
       >
         Upload file
         <VisuallyHiddenInput type="file" accept=".hex" onChange={onUploadFile} />

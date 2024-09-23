@@ -22,6 +22,8 @@ const InfoTable = ({ description, setDescription, FIELDS }) => {
 
   useEffect(() => {
     const update = (newDescription) => {
+      console.log(newDescription)
+      console.log(newDescription.allData.map((a) => a.toString(16).padStart(2, '0')).join(' '))
       setDescription((prev) => ({ ...prev, ...newDescription }))
     }
     const unsubList = [
@@ -32,8 +34,6 @@ const InfoTable = ({ description, setDescription, FIELDS }) => {
       unsubList.forEach((unsub) => unsub())
     }
   }, [])
-
-  // console.log(gateList)
 
   const rows = FIELDS.map((desc, index) => ({
     id: index,
