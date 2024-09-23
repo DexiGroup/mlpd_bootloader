@@ -1,0 +1,15 @@
+{
+  "files": [],
+  "compilerOptions": {
+    "noUnusedLocals": false,
+    "resolveJsonModule": true
+  },
+  "references": [
+    {
+      "path": "./tsconfig.node.json"
+    },
+    {
+      "path": "./tsconfig.web.json"
+    }
+  ]
+}

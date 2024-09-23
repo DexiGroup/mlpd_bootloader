@@ -1,0 +1,43 @@
+{
+  "name": "mlpd_bootloader",
+  "version": "0.0.0",
+  "main": "./out/main/index.js",
+  "author": "Alex Orlov",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron-vite preview",
+    "dev": "electron-vite dev -w",
+    "build": "electron-vite build && electron-builder --win=portable"
+  },
+  "dependencies": {
+    "@emotion/react": "^11.13.3",
+    "@emotion/styled": "^11.13.0",
+    "@mui/icons-material": "^6.1.0",
+    "@mui/material": "^6.1.0",
+    "@mui/x-data-grid-premium": "^7.18.0",
+    "@mui/x-license-pro": "^6.10.2",
+    "mqtt": "^5.10.1",
+    "react-dropzone": "^14.2.3"
+  },
+  "devDependencies": {
+    "@electron-toolkit/eslint-config-prettier": "^2.0.0",
+    "@electron-toolkit/eslint-config-ts": "^1.0.1",
+    "@electron-toolkit/preload": "^3.0.0",
+    "@electron-toolkit/tsconfig": "^1.0.1",
+    "@electron-toolkit/utils": "^3.0.0",
+    "@types/node": "^18.19.9",
+    "@types/react": "^18.2.48",
+    "@types/react-dom": "^18.2.18",
+    "@vitejs/plugin-react": "^4.2.1",
+    "electron": "^28.2.0",
+    "electron-builder": "^24.9.1",
+    "electron-vite": "^2.0.0",
+    "eslint": "8.22.0",
+    "eslint-plugin-react": "^7.33.2",
+    "prettier": "^3.2.4",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "typescript": "^5.3.3",
+    "vite": "^5.0.12"
+  }
+}
