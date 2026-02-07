@@ -3,6 +3,7 @@ import TextField from '@mui/material/TextField'
 type Props = {
   name: string
   label?: string
+  required?: boolean
   form: any
   setForm
 }

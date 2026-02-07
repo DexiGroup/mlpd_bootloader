@@ -1,5 +1,5 @@
 import Box from '@mui/material/Box'
-import Grid from '@mui/material/Grid2'
+import Grid from '@mui/material/Grid'
 import Connection from './Connection'
 import Divider from '@mui/material/Divider'
 import Bootloader from './Bootloader/Bootloader'

@@ -40,8 +40,10 @@ export default class Mqtt {
     const client = mqtt.connect({
       host: opts.host ?? '188.225.81.229',
       port: opts.port ?? 1883,
-      username: opts.username ?? 'd2group',
-      password: opts.password ?? 'Opossum2',
+      username: opts.username ?? '',
+      password: opts.password ?? '',
+      // username: opts.username ?? 'd2group',
+      // password: opts.password ?? 'Opossum2',
       clientId: opts.clientId
     })
 

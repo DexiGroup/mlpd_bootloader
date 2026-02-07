@@ -14,6 +14,7 @@ type Form = {
 
 const Connection = () => {
   const options = ['188.225.81.229', '46.39.226.183']
+  // const wellknown_projects = ['d2_test', 'd2mesh']
   const [form, setForm] = useState<Form>({})
   const [mqttConnection, setConnection] = useState<boolean>(false)
 
@@ -33,6 +34,7 @@ const Connection = () => {
   }
 
   const onChange = (_event: any, newValue: string | null) => {
+    console.log(_event.target)
     setForm({ ...form, host: newValue ?? '' })
   }
 
@@ -51,10 +53,16 @@ const Connection = () => {
         )}
       />
       <SettingsInput {...{ ...inputProps, name: 'port', required: false }} />
-      <SettingsInput {...{ ...inputProps, name: 'username' }} />
-      <SettingsInput {...{ ...inputProps, name: 'password', type: 'password' }} />
+      <SettingsInput {...{ ...inputProps, name: 'username', required: false }} />
+      <SettingsInput {...{ ...inputProps, name: 'password', required: false, type: 'password' }} />
       <SettingsInput
-        {...{ ...inputProps, name: 'projectName', label: 'Project', type: 'Project' }}
+        {...{
+          ...inputProps,
+          name: 'projectName',
+          label: 'Project',
+          size: 'small',
+          type: 'Project'
+        }}
       />
       <Button
         type="submit"
