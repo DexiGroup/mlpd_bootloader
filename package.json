@@ -7,12 +7,12 @@
   "scripts": {
     "start": "electron-vite preview",
     "dev": "electron-vite dev -w",
-    "build": "electron-vite build && electron-builder --win=portable"
+    "build": "electron-vite build && electron-builder --win=portable",
+    "buildLinux": "electron-vite build && electron-builder --linux"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
-    "@mui/icons-material": "^7.3.7",
     "@mui/material": "^7.3.7",
     "@mui/x-data-grid-premium": "^7.18.0",
     "@mui/x-license-pro": "^6.10.2",

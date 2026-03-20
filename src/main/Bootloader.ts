@@ -9,6 +9,8 @@ type ProgramParams = {
   gateId: string
   repeatCount: number
   sendInterval: number
+  groupName: string
+  deviceName: string
   version: number[]
 }
 
@@ -68,6 +70,8 @@ export default class Bootloader {
       repeatCount: +params.repeatCount,
       sendInterval: +params.sendInterval,
       projectName: params.projectName.trim(),
+      groupName: params.groupName?.trim() ?? 'all',
+      deviceName: params.deviceName?.trim() ?? 'all',
       version: params.version.split('.').map((a) => parseInt(a))
     }
     this.updateProgress()
@@ -83,7 +87,14 @@ export default class Bootloader {
     if (!this.data) {
       throw new Error('No file provided')
     }
-    const topic = [this.mqtt.projectName, this.params.gateId, 'all', 'all', 'boot'].join('/')
+    const topic = [
+      this.mqtt.projectName,
+      this.params.gateId,
+      this.params.groupName ?? 'all',
+      this.params.deviceName ?? 'all',
+      'all',
+      'boot'
+    ].join('/')
     const payload = { Data: this.data[this.currentRow] }
     this.currentRepeat++
     if (this.currentRepeat >= this.params.repeatCount) {

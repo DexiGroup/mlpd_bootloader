@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import Button, { ButtonOwnProps } from '@mui/material/Button'
 // import FileUploadIcon from '@mui/icons-material/FileUpload'
-import FileUploadIcon from '@mui/icons-material/FileUpload'
+// import FileUploadIcon from '@mui/icons-material/FileUpload'
 // import CloudUploadIcon from '@mui/icons-material/CloudUpload'
 import Box from '@mui/material/Box'
 import { styled } from '@mui/material/styles'
@@ -89,7 +89,7 @@ const Commands = ({ description }) => {
   return (
     <Box sx={{ padding: '10px' }}>
       <Button
-        {...{ ...commonProps, component: 'label', role: undefined, startIcon: <FileUploadIcon /> }}
+        {...{ ...commonProps, component: 'label', role: undefined }}
       >
         Upload file
         <VisuallyHiddenInput type="file" accept=".hex" onChange={onUploadFile} />
