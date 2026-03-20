@@ -13,7 +13,7 @@ type Form = {
 }
 
 const Connection = () => {
-  const options = ['188.225.81.229', '46.39.226.183']
+  const options = ['188.225.81.229', '46.39.226.183', '127.0.0.1']
   // const wellknown_projects = ['d2_test', 'd2mesh']
   const [form, setForm] = useState<Form>({})
   const [mqttConnection, setConnection] = useState<boolean>(false)
@@ -34,7 +34,6 @@ const Connection = () => {
   }
 
   const onChange = (_event: any, newValue: string | null) => {
-    console.log(_event.target)
     setForm({ ...form, host: newValue ?? '' })
   }
 

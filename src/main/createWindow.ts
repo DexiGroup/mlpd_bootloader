@@ -10,11 +10,11 @@ const createWindow = async () => {
   const { x, y } = externalDisplay ? externalDisplay.bounds : { x: 0, y: 0 }
 
   const win = new BrowserWindow({
-    width: 496,
-    height: 600,
+    width: 506,
+    height: 675,
     x: x + 50,
     y: y + 50,
-    resizable: false,
+    resizable: true,
     // fullscreen: true,
     autoHideMenuBar: true,
     webPreferences: {

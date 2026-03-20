@@ -109,7 +109,9 @@ export default class Bootloader {
           this.sendRow()
         }, this.params.sendInterval)
       } else {
-        this.setStatus('finish')
+        setTimeout(() => {
+          this.runProgram()
+        }, 1500)
       }
     } catch (err) {
       this.abort(err as Error)
@@ -138,6 +140,8 @@ export default class Bootloader {
       await this.mqtt.send(topic, { Data: msg })
       await sleep(this.params.sendInterval)
     }
+    this.updateProgress(true)
+    this.setStatus('finish')
   }
 
   private updateGateList(message: Message) {
@@ -149,8 +153,11 @@ export default class Bootloader {
     // this.webContent.send('updateProgress', { current: this.currentRow, total: this.data?.length })
   }
 
-  private updateProgress() {
-    this.webContent.send('updateProgress', { current: this.currentRow, total: this.data?.length })
+  private updateProgress(finish = false) {
+    this.webContent.send('updateProgress', {
+      current: this.currentRow + +finish,
+      total: this.data?.length + 1
+    })
   }
 
   async uploadFile(filePath: string) {

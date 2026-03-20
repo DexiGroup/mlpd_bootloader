@@ -11,24 +11,26 @@ An Electron application with React and TypeScript
 ### Install
 
 ```bash
-$ yarn
+npm install
 ```
 
 ### Development
 
 ```bash
-$ yarn dev
+npm run dev
 ```
 
 ### Build
 
 ```bash
-# For windows
-$ yarn build:win
+# Build app (without packaging)
+npm run build
 
-# For macOS
-$ yarn build:mac
+# Windows portable
+npm run dist:win:portable
 
-# For Linux
-$ yarn build:linux
+# Ubuntu/Linux portable (AppImage)
+npm run dist:linux:appimage
 ```
+
+> Note: Linux packaging is best executed on Linux (native, WSL2 Ubuntu, or CI runner) for maximum compatibility.

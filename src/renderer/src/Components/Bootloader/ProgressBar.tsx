@@ -74,11 +74,11 @@ const ProgressBar = () => {
             sx: { width: 460, margin: '0 0 5px 15px' },
             size: 'large',
             color: 'success',
-            disabled: status !== 'finish',
-            onClick: runProgram
+            disabled: status !== 'finish'
+            // onClick: runProgram
           }}
         >
-          Run program
+          Ready
         </Button>
       )}
     </Box>

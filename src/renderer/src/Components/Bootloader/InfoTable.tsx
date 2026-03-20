@@ -3,6 +3,7 @@ import TableBody from '@mui/material/TableBody'
 import TableRow from '@mui/material/TableRow'
 import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
+import Tooltip from '@mui/material/Tooltip'
 import { useEffect } from 'react'
 import InputField from './InputField'
 // import SettingsInput from '../SettingsInput'
@@ -23,7 +24,7 @@ const InfoTable = ({ description, setDescription, FIELDS }) => {
   useEffect(() => {
     const update = (newDescription) => {
       console.log(newDescription)
-      console.log(newDescription.allData.map((a) => a.toString(16).padStart(2, '0')).join(' '))
+      // console.log(newDescription.allData.map((a) => a.toString(16).padStart(2, '0')).join(' '))
       setDescription((prev) => ({ ...prev, ...newDescription }))
     }
     const unsubList = [
@@ -57,6 +58,7 @@ const InfoTable = ({ description, setDescription, FIELDS }) => {
               <TableCell align="left" width={150}>
                 {row.label}
               </TableCell>
+
               <TableCell align="left">
                 {row.editable ? (
                   <InputField
@@ -66,8 +68,12 @@ const InfoTable = ({ description, setDescription, FIELDS }) => {
                       setDescription
                     }}
                   />
-                ) : (
+                ) : row.value.toString().length < 30 ? (
                   row.value
+                ) : (
+                  <Tooltip title={row.value}>
+                    <span>{row.value.toString().substring(0, 30) + '...'}</span>
+                  </Tooltip>
                 )}
               </TableCell>
             </TableRow>

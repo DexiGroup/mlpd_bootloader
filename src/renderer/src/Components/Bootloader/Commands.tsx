@@ -45,7 +45,11 @@ const Commands = ({ description }) => {
   const params = { gateId, repeatCount, sendInterval, projectName, version }
 
   const beginProgram = async () => {
-    await window.bootloader.beginProgram(params)
+    try {
+      await window.bootloader.beginProgram(params)
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   const commonProps = {
