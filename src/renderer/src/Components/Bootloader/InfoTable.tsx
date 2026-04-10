@@ -6,6 +6,7 @@ import TableContainer from '@mui/material/TableContainer'
 import Tooltip from '@mui/material/Tooltip'
 import { useEffect } from 'react'
 import InputField from './InputField'
+import Switch from '@mui/material/Switch'
 // import SettingsInput from '../SettingsInput'
 // import Autocomplete from '@mui/material/Autocomplete'
 // import GateField from './GateField'
@@ -36,7 +37,7 @@ const InfoTable = ({ description, setDescription, FIELDS }) => {
     }
   }, [])
 
-  const rows = FIELDS.map((desc, index) => ({
+  const rows = FIELDS.filter((desc) => !desc.hidden).map((desc, index) => ({
     id: index,
     label: desc.label,
     value: description[desc.name],
@@ -78,6 +79,20 @@ const InfoTable = ({ description, setDescription, FIELDS }) => {
               </TableCell>
             </TableRow>
           ))}
+          <TableRow>
+            <TableCell align="left" width={150}>
+              Vertical sending
+            </TableCell>
+            <TableCell align="left">
+              <Switch
+                defaultChecked
+                size="small"
+                onChange={(_event, checked) => {
+                  setDescription((prev) => ({ ...prev, verticalSending: checked }))
+                }}
+              />
+            </TableCell>
+          </TableRow>
         </TableBody>
       </Table>
     </TableContainer>

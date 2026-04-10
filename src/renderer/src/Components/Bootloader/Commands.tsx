@@ -41,8 +41,27 @@ const Commands = ({ description }) => {
     window.bootloader.abortProgram()
   }, [])
 
-  const { gateId, repeatCount, sendInterval, projectName, version } = description
-  const params = { gateId, repeatCount, sendInterval, projectName, version }
+  const {
+    gateId,
+    repeatCount,
+    sendInterval,
+    projectName,
+    version,
+    groupName,
+    deviceName,
+    verticalSending
+  } = description
+
+  const params = {
+    gateId,
+    repeatCount,
+    sendInterval,
+    projectName,
+    version,
+    groupName,
+    deviceName,
+    verticalSending
+  }
 
   const beginProgram = async () => {
     try {
@@ -92,9 +111,7 @@ const Commands = ({ description }) => {
 
   return (
     <Box sx={{ padding: '10px' }}>
-      <Button
-        {...{ ...commonProps, component: 'label', role: undefined }}
-      >
+      <Button {...{ ...commonProps, component: 'label', role: undefined }}>
         Upload file
         <VisuallyHiddenInput type="file" accept=".hex" onChange={onUploadFile} />
       </Button>

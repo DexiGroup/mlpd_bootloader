@@ -117,7 +117,7 @@ export default class Mqtt {
         reject(new Error('Request timeout'))
       }, TIMEOUT)
 
-      client.publish(topic, JSON.stringify(payload), (err) => {
+      client.publish(topic, JSON.stringify(payload), { qos: 1 }, (err) => {
         if (err) {
           reject(err)
         } else {
