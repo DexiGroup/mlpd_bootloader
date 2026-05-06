@@ -26,10 +26,12 @@ export default class Bootloader {
   params: ProgramParams | undefined
   currentRow = 0
   currentRepeat = 0
-  timer: ReturnType<typeof setTimeout> | undefined
+  // timer: ReturnType<typeof setTimeout> | undefined
   gates = new Set<string>()
   status: string = 'empty'
   currentProgress = 0
+  abortController = new AbortController()
+  abortSignal = this.abortController.signal
 
   constructor(webContent: WebContents, mqtt: Mqtt) {
     this.webContent = webContent
@@ -43,9 +45,10 @@ export default class Bootloader {
 
   abort(reason?: Error) {
     this.setStatus('abort')
-    if (this.timer) {
-      clearTimeout(this.timer)
-    }
+    // if (this.timer) {
+    //   clearTimeout(this.timer)
+    // }
+    this.abortController.abort()
     if (reason) {
       this.webContent.send('backError', reason)
     }
@@ -61,12 +64,6 @@ export default class Bootloader {
       throw new Error(`Gate ID must be specified`)
     }
     this.currentProgress = 0
-    // console.log(params)
-    // const versionRegExp = /\d{1,3}\.\d{1,3}/
-    // if (!params.version || !versionRegExp.test(params.version)) {
-    //   throw new Error(`Version must be specified`)
-    // }
-    // this.params = params
     this.currentRow = 0
     this.currentRepeat = 0
     this.params = {
@@ -78,17 +75,11 @@ export default class Bootloader {
       deviceName: params.deviceName?.trim() ?? 'all',
       version: [1, 1],
       verticalSending: !!params.verticalSending
-      // version: params.version.split('.').map((a) => parseInt(a))
     }
     // this.updateProgress()
 
     this.setStatus('progress')
     await this.sendData()
-    // if (this.params.verticalSending) {
-    //   await this.sendRowVertical()
-    // } else {
-    //   await this.sendRowHorizontal()
-    // }
   }
 
   private getTopic() {
@@ -104,59 +95,11 @@ export default class Bootloader {
     ].join('/')
   }
 
-  // private async sendRow() {
-  //   if (!this.params) {
-  //     throw new Error('No params provided')
-  //   }
-  //   if (!this.data) {
-  //     throw new Error('No file provided')
-  //   }
-  //   const topic = this.getTopic()
-  //
-  //   const payload = { Data: this.data[this.currentRow] }
-  //   this.currentRepeat++
-  //   if (this.currentRepeat >= this.params.repeatCount) {
-  //     this.currentRow++
-  //     this.currentRepeat = 0
-  //     this.updateProgress()
-  //   }
-  //
-  //   try {
-  //     await this.mqtt.send(topic, payload)
-  //     if (this.currentRow < this.data.length) {
-  //       this.timer = setTimeout(() => {
-  //         this.sendRow()
-  //       }, this.params.sendInterval)
-  //     } else {
-  //       await sleep(this.params.sendInterval)
-  //       for (let i = 0; i < this.params.repeatCount; i += 1) {
-  //         await this.runProgram()
-  //       }
-  //       this.setStatus('finish')
-  //       // setTimeout(() => {
-  //       //   this.runProgram()
-  //       // }, 1500)
-  //     }
-  //   } catch (err) {
-  //     this.abort(err as Error)
-  //   }
-  // }
-
   private async sendMessage(topic, payload) {
     await this.mqtt.send(topic, payload)
     await sleep(this.params!.sendInterval)
     this.updateProgress()
   }
-  // private async sendRow(topic, payload) {
-  //   try {
-  //     await this.mqtt.send(topic, payload)
-  //     await sleep(this.params!.sendInterval)
-  //     this.updateProgress()
-  //   } catch (err) {
-  //     this.abort(err as Error)
-  //     return
-  //   }
-  // }
 
   private async sendData() {
     if (!this.params) {
@@ -168,6 +111,9 @@ export default class Bootloader {
     const topic = this.getTopic()
 
     try {
+      this.abortSignal.addEventListener('abort', (reason) => {
+        throw new Error(`Program aborted${reason ? `: ${reason}` : ''}`)
+      })
       if (this.params.verticalSending) {
         for (let i = 0; i < this.params.repeatCount; i++) {
           for (let j = 0; j < this.data.length; j++) {
@@ -194,31 +140,6 @@ export default class Bootloader {
     this.setStatus('finish')
   }
 
-  // private async sendRowHorizontal() {
-  //   if (!this.params) {
-  //     throw new Error('No params provided')
-  //   }
-  //   if (!this.data) {
-  //     throw new Error('No file provided')
-  //   }
-  //   const topic = this.getTopic()
-  //   for (let i = 0; i < this.params.repeatCount; i++) {
-  //     for (let j = 0; j < this.data.length; j++) {
-  //       const payload = { Data: this.data[j] }
-  //       try {
-  //         await this.mqtt.send(topic, payload)
-  //         await sleep(this.params.sendInterval)
-  //         this.updateProgress()
-  //       } catch (err) {
-  //         this.abort(err as Error)
-  //         return
-  //       }
-  //     }
-  //     await this.runProgram()
-  //   }
-  //   this.setStatus('finish')
-  // }
-
   private setStatus(status: string) {
     this.status = status
     this.webContent.send('updateStatus', status)
@@ -242,12 +163,8 @@ export default class Bootloader {
     const msg = [payload.length, 0x00, 0x00, 0x01, ...Array.from(payload)]
     const sum = 256 - (msg.reduce((acc, cur) => acc + cur) % 256)
     msg.push(sum)
-
     const topic = this.getTopic()
     await this.sendMessage(topic, { Data: msg })
-    // await this.mqtt.send(topic, { Data: msg })
-    // await sleep(this.params.sendInterval)
-    // this.updateProgress()
   }
 
   private updateGateList(message: Message) {
@@ -256,7 +173,6 @@ export default class Bootloader {
       this.gates.add(gateName)
       this.webContent.send('updateGateList', Array.from(this.gates))
     }
-    // this.webContent.send('updateProgress', { current: this.currentRow, total: this.data?.length })
   }
 
   private updateProgress() {
@@ -285,6 +201,7 @@ export default class Bootloader {
     str = str.replace(/\n/g, 't')
     let rows = str.split('t')
     rows = rows.filter((row) => row.length > 0)
+
     let data = rows
       .map((row) => {
         return row.match(/[0-9a-f]{2}/gi)?.map((str) => parseInt(str, 16))
@@ -292,6 +209,7 @@ export default class Bootloader {
       .filter((row) => row !== undefined)
 
     data = data.filter((row) => row[3] === 0)
+
     data.pop()
 
     const totalLength = data.reduce((acc, cur) => acc + (cur?.length ?? 0), 0)
@@ -299,6 +217,8 @@ export default class Bootloader {
       acc.push(...cur.slice(4, -1))
       return acc
     }, [])
+
+    // console.log(allData)
     this.allData = allData
 
     if (data.length === 0) {
