@@ -19,12 +19,18 @@ import Switch from '@mui/material/Switch'
 //   { field: 'value', width: 150 }
 // ]
 
+// function getDefaultChecked(arr: any[], name: string) {
+//   console.log(arr)
+//   return arr?.find((a) => a.name === name)?.defaultValue ?? false
+// }
+
 const InfoTable = ({ description, setDescription, FIELDS }) => {
   // const [gateList, setGateList] = useState([])
+  // const [checked, setChecked] = useState({ verticalSending: false, individual: false })
 
   useEffect(() => {
     const update = (newDescription) => {
-      console.log(newDescription)
+      // console.log(newDescription)
       // console.log(newDescription.allData.map((a) => a.toString(16).padStart(2, '0')).join(' '))
       setDescription((prev) => ({ ...prev, ...newDescription }))
     }
@@ -36,6 +42,9 @@ const InfoTable = ({ description, setDescription, FIELDS }) => {
       unsubList.forEach((unsub) => unsub())
     }
   }, [])
+
+  // useEffect(() => {
+  // }, [description])
 
   const rows = FIELDS.filter((desc) => !desc.hidden).map((desc, index) => ({
     id: index,
@@ -49,7 +58,7 @@ const InfoTable = ({ description, setDescription, FIELDS }) => {
   // const onChange = (_event: any, newValue: string | null) => {
   //   setDescription((prev) => ({ ...prev, gateID: newValue ?? '' }))
   // }
-
+  console.log(description)
   return (
     <TableContainer>
       <Table sx={{ width: 1 }} size="small">
@@ -85,7 +94,8 @@ const InfoTable = ({ description, setDescription, FIELDS }) => {
             </TableCell>
             <TableCell align="left">
               <Switch
-                defaultChecked
+                value={description?.verticalSending ?? false}
+                // defaultChecked={false}
                 size="small"
                 onChange={(_event, checked) => {
                   setDescription((prev) => ({ ...prev, verticalSending: checked }))
@@ -100,6 +110,8 @@ const InfoTable = ({ description, setDescription, FIELDS }) => {
             <TableCell align="left">
               <Switch
                 size="small"
+                value={description?.individual ?? false}
+                // defaultChecked={getDefaultChecked(description, 'individual')}
                 onChange={(_event, checked) => {
                   setDescription((prev) => ({ ...prev, individual: checked }))
                 }}

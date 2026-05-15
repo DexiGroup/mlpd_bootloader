@@ -175,7 +175,7 @@ export default class Bootloader {
                 return
               }
               await this.fetchMessage(topic, payload, this.params.sendInterval)
-              this.updateProgress(i, this.data.length)
+              this.updateProgress(i, this.data.length + 1)
               success = true
               break
             } catch (error) {
@@ -187,12 +187,22 @@ export default class Bootloader {
           }
         }
 
-        if (this.abortFlag) {
-          return
+        let success = false
+        for (let counter = 0; counter < this.params.repeatCount; counter++) {
+          try {
+            if (this.abortFlag) {
+              return
+            }
+            await this.runProgram(true)
+            this.updateProgress(this.data.length + 1, this.data.length + 1)
+            success = true
+            break
+          } catch (error) {
+            console.log(error)
+          }
         }
-        /* Выяснить поведение runProgram для fetch */
-        for (let i = 0; i < this.params.repeatCount + 2; i++) {
-          await this.runProgram()
+        if (!success) {
+          this.abort(new Error('Individual timeout'))
         }
       } else if (this.params.verticalSending) {
         for (let i = 0; i < this.params.repeatCount; i++) {
@@ -233,7 +243,7 @@ export default class Bootloader {
     this.webContent.send('updateStatus', status)
   }
 
-  async runProgram() {
+  async runProgram(fetchFlag = false) {
     if (!this.params) {
       throw new Error('No params provided')
     }
@@ -252,7 +262,11 @@ export default class Bootloader {
     const sum = 256 - (msg.reduce((acc, cur) => acc + cur) % 256)
     msg.push(sum)
     const topic = this.getTopic()
-    await this.sendMessage(topic, { Data: msg })
+    if (!fetchFlag) {
+      await this.sendMessage(topic, { Data: msg })
+    } else {
+      await this.fetchMessage(topic, { Data: msg }, this.params.sendInterval)
+    }
   }
 
   // private updateGateList(message: Message) {

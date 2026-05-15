@@ -15,8 +15,8 @@ export const FIELDS = [
   { name: 'version', label: 'Version', defaultValue: '1.0', editable: true },
   { name: 'repeatCount', label: 'Repeat number', defaultValue: 3, editable: true },
   { name: 'sendInterval', label: 'Send interval', defaultValue: 200, editable: true },
-  { name: 'verticalSending', defaultValue: true, hidden: true },
-  { name: 'individual', defaultValue: false, hidden: true }
+  { name: 'verticalSending', defaultValue: false, hidden: true },
+  { name: 'individual', defaultValue: true, hidden: true }
   // { name: 'verticalSending', label: 'verticalSending', defaultValue: true, editable: false , hidden: true },
   // {name: 'repeatInterval', label: 'Repeat interval(ms)', defaultValue: 200 },
 ]
