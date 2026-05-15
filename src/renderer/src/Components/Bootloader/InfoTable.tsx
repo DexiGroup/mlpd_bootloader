@@ -93,6 +93,19 @@ const InfoTable = ({ description, setDescription, FIELDS }) => {
               />
             </TableCell>
           </TableRow>
+          <TableRow>
+            <TableCell align="left" width={150}>
+              Individual upload
+            </TableCell>
+            <TableCell align="left">
+              <Switch
+                size="small"
+                onChange={(_event, checked) => {
+                  setDescription((prev) => ({ ...prev, individual: checked }))
+                }}
+              />
+            </TableCell>
+          </TableRow>
         </TableBody>
       </Table>
     </TableContainer>

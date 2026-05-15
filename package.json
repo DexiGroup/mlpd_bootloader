@@ -1,6 +1,6 @@
 {
   "name": "mlpd_bootloader",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "main": "./out/main/index.js",
   "author": "Alex Orlov",
   "license": "MIT",

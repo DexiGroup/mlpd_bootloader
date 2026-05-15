@@ -1,6 +1,6 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import IPCSubscribe, { IpcSubscribeHandler } from './ipcSubscribe'
-import crc16 from 'crc/crc16'
+// import crc16 from 'crc/crc16'
 
 // const data = [0, 1]
 // console.log(data.map((a) => a.toString(16).padStart(2, '0')).join(' '))

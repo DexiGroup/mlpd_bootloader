@@ -1,8 +1,11 @@
+// import Mqtt, { Message } from './Mqtt'
 import Mqtt, { Message } from './Mqtt'
 import { ipcMain, WebContents } from 'electron'
 import * as fs from 'node:fs/promises'
 import * as path from 'node:path'
 import crc16 from 'crc/crc16'
+
+const DEFAULT_ACK_WAITING_TIMEOUT_MS = 2000
 
 type ProgramParams = {
   projectName: string
@@ -12,6 +15,7 @@ type ProgramParams = {
   groupName: string
   deviceName: string
   version: number[]
+  individual: boolean
   verticalSending: boolean
 }
 
@@ -30,8 +34,9 @@ export default class Bootloader {
   gates = new Set<string>()
   status: string = 'empty'
   currentProgress = 0
-  abortController = new AbortController()
-  abortSignal = this.abortController.signal
+  abortFlag = false
+  // abortController = new AbortController()
+  // abortSignal = this.abortController.signal
 
   constructor(webContent: WebContents, mqtt: Mqtt) {
     this.webContent = webContent
@@ -40,7 +45,7 @@ export default class Bootloader {
     ipcMain.handle('beginProgram', (_event, params: ProgramParams) => this.program(params))
     ipcMain.handle('runProgram', () => this.runProgram())
     ipcMain.handle('uploadFile', (_event, filePath: string) => this.uploadFile(filePath))
-    this.mqtt.subscribe((message) => this.updateGateList(message))
+    // this.mqtt.subscribe((message) => this.updateGateList(message))
   }
 
   abort(reason?: Error) {
@@ -48,12 +53,14 @@ export default class Bootloader {
     // if (this.timer) {
     //   clearTimeout(this.timer)
     // }
-    this.abortController.abort()
+    // this.abortController.abort()
+    this.abortFlag = true
     if (reason) {
       this.webContent.send('backError', reason)
     }
 
     this.webContent.send('abortedProgram')
+    // this.setStatus('aborted')
   }
 
   async program(params: any) {
@@ -66,6 +73,7 @@ export default class Bootloader {
     this.currentProgress = 0
     this.currentRow = 0
     this.currentRepeat = 0
+
     this.params = {
       gateId: params.gateId.trim(),
       repeatCount: +params.repeatCount,
@@ -73,12 +81,15 @@ export default class Bootloader {
       projectName: params.projectName.trim(),
       groupName: params.groupName?.trim() ?? 'all',
       deviceName: params.deviceName?.trim() ?? 'all',
-      version: [1, 1],
+      version: params.version?.split('.') ?? [1, 1],
+      individual: !!params.individual,
       verticalSending: !!params.verticalSending
     }
+    this.updateProgress(0, 1)
     // this.updateProgress()
 
     this.setStatus('progress')
+    this.abortFlag = false
     await this.sendData()
   }
 
@@ -95,12 +106,55 @@ export default class Bootloader {
     ].join('/')
   }
 
-  private async sendMessage(topic, payload) {
+  private async sendMessage(topic: string, payload: any) {
     await this.mqtt.send(topic, payload)
     await sleep(this.params!.sendInterval)
     this.updateProgress()
   }
 
+  private async fetchMessage(
+    topic: string,
+    payload: any,
+    timeout = DEFAULT_ACK_WAITING_TIMEOUT_MS
+  ) {
+    return new Promise((resolve, reject) => {
+      const timer = setTimeout(() => {
+        finallize()
+        reject(new Error('timeout'))
+      }, timeout)
+      const finallize = () => {
+        this.mqtt.unsubscribe(ackHandler)
+        clearTimeout(timer)
+      }
+      const ackHandler = (message: Message) => {
+        if (
+          message.header.messageType === 'response' &&
+          message.header.gateName === this.params?.gateId
+        ) {
+          finallize()
+          if (message.payload?.DeviceError === 'boot ack success') {
+            resolve(message.payload)
+          } else {
+            reject(new Error(message.payload.DeviceError))
+          }
+        }
+      }
+      this.mqtt.subscribe(ackHandler)
+      this.mqtt.send(topic, payload).catch((err) => {
+        finallize()
+        reject(err)
+      })
+    })
+  }
+
+  // Topic: d2_test/gateA362878E/rloc/0001/boot
+  // Topic: d2_test/gateA362878E/response
+  // {
+  //   "DeviceError": "boot ack success"
+  // }
+  // {
+  //   "DeviceError": "boot ack fail"
+  // }
   private async sendData() {
     if (!this.params) {
       throw new Error('No params provided')
@@ -111,13 +165,43 @@ export default class Bootloader {
     const topic = this.getTopic()
 
     try {
-      this.abortSignal.addEventListener('abort', (reason) => {
-        throw new Error(`Program aborted${reason ? `: ${reason}` : ''}`)
-      })
-      if (this.params.verticalSending) {
+      if (this.params.individual) {
+        for (let i = 0; i < this.data.length; i++) {
+          const payload = { Data: this.data[i] }
+          let success = false
+          for (let counter = 0; counter < this.params.repeatCount; counter++) {
+            try {
+              if (this.abortFlag) {
+                return
+              }
+              await this.fetchMessage(topic, payload, this.params.sendInterval)
+              this.updateProgress(i, this.data.length)
+              success = true
+              break
+            } catch (error) {
+              console.log(error)
+            }
+          }
+          if (!success) {
+            this.abort(new Error('Individual timeout'))
+          }
+        }
+
+        if (this.abortFlag) {
+          return
+        }
+        /* Выяснить поведение runProgram для fetch */
+        for (let i = 0; i < this.params.repeatCount + 2; i++) {
+          await this.runProgram()
+        }
+      } else if (this.params.verticalSending) {
         for (let i = 0; i < this.params.repeatCount; i++) {
           for (let j = 0; j < this.data.length; j++) {
             const payload = { Data: this.data[j] }
+            if (this.abortFlag) {
+              this.abortFlag = false
+              return
+            }
             await this.sendMessage(topic, payload)
           }
           await this.runProgram()
@@ -126,6 +210,10 @@ export default class Bootloader {
         for (let i = 0; i < this.data.length; i++) {
           const payload = { Data: this.data[i] }
           for (let j = 0; j < this.params.repeatCount; j++) {
+            if (this.abortFlag) {
+              this.abortFlag = false
+              return
+            }
             await this.sendMessage(topic, payload)
           }
         }
@@ -167,15 +255,15 @@ export default class Bootloader {
     await this.sendMessage(topic, { Data: msg })
   }
 
-  private updateGateList(message: Message) {
-    const { gateName } = message.header
-    if (!this.gates.has(gateName)) {
-      this.gates.add(gateName)
-      this.webContent.send('updateGateList', Array.from(this.gates))
-    }
-  }
+  // private updateGateList(message: Message) {
+  //   const { gateName } = message.header
+  //   if (!this.gates.has(gateName)) {
+  //     this.gates.add(gateName)
+  //     this.webContent.send('updateGateList', Array.from(this.gates))
+  //   }
+  // }
 
-  private updateProgress() {
+  private updateProgress(current?: number, total?: number) {
     if (!this.data) {
       throw new Error('No file provided')
     }
@@ -183,8 +271,8 @@ export default class Bootloader {
       throw new Error('No params provided')
     }
     this.webContent.send('updateProgress', {
-      current: ++this.currentProgress,
-      total: (this.data.length + 1) * this.params?.repeatCount
+      current: current ?? ++this.currentProgress,
+      total: total ?? (this.data.length + 1) * this.params?.repeatCount
     })
   }
 

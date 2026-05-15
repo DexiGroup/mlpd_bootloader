@@ -49,7 +49,8 @@ const Commands = ({ description }) => {
     version,
     groupName,
     deviceName,
-    verticalSending
+    verticalSending,
+    individual
   } = description
 
   const params = {
@@ -60,7 +61,8 @@ const Commands = ({ description }) => {
     version,
     groupName,
     deviceName,
-    verticalSending
+    verticalSending,
+    individual
   }
 
   const beginProgram = async () => {

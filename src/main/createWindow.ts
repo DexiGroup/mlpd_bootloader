@@ -11,7 +11,7 @@ const createWindow = async () => {
 
   const win = new BrowserWindow({
     width: 506,
-    height: 675,
+    height: 745,
     x: x + 50,
     y: y + 50,
     resizable: true,

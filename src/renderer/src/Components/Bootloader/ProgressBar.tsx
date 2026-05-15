@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import Box from '@mui/material/Box'
 import LinearProgress, {
   LinearProgressProps,
@@ -38,6 +38,46 @@ function LinearProgressWithLabel(props: LinearProgressProps & { value: number })
   )
 }
 
+const FinishButton = (
+  <Button
+    {...{
+      variant: 'contained',
+      sx: { width: 460, margin: '0 0 5px 15px' },
+      size: 'large',
+      color: 'success',
+      disabled: false
+    }}
+  >
+    Finished
+  </Button>
+)
+const AbortButton = (
+  <Button
+    {...{
+      variant: 'contained',
+      sx: { width: 460, margin: '0 0 5px 15px' },
+      size: 'large',
+      color: 'error',
+      disabled: false
+    }}
+  >
+    Aborted
+  </Button>
+)
+const UnknownButton = (
+  <Button
+    {...{
+      variant: 'contained',
+      sx: { width: 460, margin: '0 0 5px 15px' },
+      size: 'large',
+      color: 'error',
+      disabled: true
+    }}
+  >
+    &nbsp;
+  </Button>
+)
+
 const ProgressBar = () => {
   const [progress, setProgress] = useState({ current: 0, total: 0 })
   const [status, setStatus] = useState('unknown')
@@ -56,10 +96,24 @@ const ProgressBar = () => {
     console.log(`${progress.current}/${progress.total}`)
   }, [progress])
 
-  const runProgram = useCallback(() => {
-    window.bootloader.runProgram()
-  }, [])
+  // const runProgram = useCallback(() => {
+  //   window.bootloader.runProgram()
+  // }, [])
 
+  // let button: JSX.Element = null
+  //
+  // useEffect(() => {
+  //   switch (status) {
+  //     case 'finish':
+  //       button = FinishButton
+  //       break
+  //     case 'abort':
+  //       button = FinishButton
+  //       break
+  //     default:
+  //       button = UnkownButton
+  //   }
+  // }, [status])
   return (
     <Box height={40} width={1}>
       {status === 'progress' && (
@@ -67,20 +121,10 @@ const ProgressBar = () => {
           value={progress.total ? Math.floor((100 * progress.current) / progress.total) : 0}
         />
       )}
-      {status !== 'progress' && (
-        <Button
-          {...{
-            variant: 'contained',
-            sx: { width: 460, margin: '0 0 5px 15px' },
-            size: 'large',
-            color: 'success',
-            disabled: status !== 'finish'
-            // onClick: runProgram
-          }}
-        >
-          Ready
-        </Button>
-      )}
+      {status !== 'progress' &&
+        ((status === 'finish' && FinishButton) ||
+          (status === 'abort' && AbortButton) ||
+          UnknownButton)}
     </Box>
   )
 }

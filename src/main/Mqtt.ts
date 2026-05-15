@@ -25,7 +25,8 @@ export default class Mqtt {
   webContent: WebContents
   projectName = 'default'
   requests: RequestMap = new Map()
-  messageSubscription: undefined | Subscription
+  // messageSubscription: undefined | Subscription
+  messageSubscriptions: Set<Subscription> = new Set()
 
   constructor(webContent: WebContents) {
     this.webContent = webContent
@@ -159,14 +160,18 @@ export default class Mqtt {
         }
 
         // if (message.header.messageType === 'act_value' && this.messageSubscription) {
-        if (this.messageSubscription) {
-          this.messageSubscription(message)
-          // this.fetch(message.header, { ttt: 123 })
-          //   .then((response) => {
-          //     console.log(response)
-          //   })
-          //   .catch((err) => console.log(err))
+        // if (this.messageSubscription) {
+        //   this.messageSubscription(message)
+        //   // this.fetch(message.header, { ttt: 123 })
+        //   //   .then((response) => {
+        //   //     console.log(response)
+        //   //   })
+        //   //   .catch((err) => console.log(err))
+        // }
+        for (const handler of this.messageSubscriptions) {
+          handler(message)
         }
+
         if (message.header.messageType === 'response') {
           const header = message.header
           const requestId = [header.project, header.gateName, header.groupName, header.mac].join(
@@ -187,6 +192,12 @@ export default class Mqtt {
   }
 
   subscribe(handler: Subscription) {
-    this.messageSubscription = handler
+    // this.messageSubscription = handler
+    this.messageSubscriptions.add(handler)
+  }
+
+  unsubscribe(handler: Subscription) {
+    // this.messageSubscription = handler
+    this.messageSubscriptions.delete(handler)
   }
 }
